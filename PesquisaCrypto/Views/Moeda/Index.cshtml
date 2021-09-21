@@ -1,0 +1,121 @@
+﻿@model IList<Moeda>
+
+<h2>Ranking de Moedas mais investidas:</h2>
+
+<div class="container table-primary">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Quantidade</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Nome)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(x => item.Quantidade)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <partial name="_Grafico" />
+</div>
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+
+<script>
+    function PegarMoedas(dados) {
+        var quantidade = 0;
+        var moedas = [];
+        while (quantidade < dados.length) {
+            moedas.push(dados[quantidade].nome);
+            quantidade++;
+        }
+
+        return moedas;
+    }
+
+    function PegarQuantidades(dados) {
+        var quantidade = 0;
+        var valores = [];
+
+        while (quantidade < dados.length) {
+            valores.push(dados[quantidade].quantidade);
+            quantidade++;
+        }
+
+        return valores;
+    }
+
+    function PegarCores(quantidade) {
+        var cores = [];
+        while (quantidade >= 0) {
+            var r = Math.floor(Math.random() * 255);
+            var g = Math.floor(Math.random() * 255);
+            var b = Math.floor(Math.random() * 255);
+
+            cores.push("rgb(" + r + ", " + g + ", " + b + ")");
+
+            quantidade--;
+        }
+        return cores;
+    }
+
+    $.ajax({
+        type: "GET",
+        url: "Moeda/DadosGrafico",
+        success: function (dados) {
+            new Chart(document.getElementById("grafico"), {
+                type: 'pie',
+                data: {
+                    labels: PegarMoedas(dados),
+                    datasets: [{
+                        labels: "Quantidade",
+                        borderWidth: 2,
+                        backgroundColor: PegarCores(dados.length),
+                        data: PegarQuantidades(dados)
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: "Quantidade em cada moeda"
+                    }
+                }
+            });
+        }
+    })
+</script>
+
+<h4>Para participar da pesquisa, basta selecionar a moeda que desejar, e clicar em enviar</h4>
+<hr />
+
+<form asp-controller="Moeda" asp-action="EscolhaMoedas" method="post" class="form-group">
+    @{
+        for (int i = 0; i < Model.Count(); i++)
+        {
+            <input asp-for="@Model[i].CheckBoxMarcado" type="checkbox" />
+            <label asp-for="@Model[i].Id">@Model[i].Nome</label>
+            <input asp-for="@Model[i].Id" type="hidden" />
+            <input asp-for="@Model[i].Nome" type="hidden" />
+            <input asp-for="@Model[i].Quantidade" type="hidden" />
+            <br />
+        }
+    }
+    <input type="submit" class="btn btn-primary" value="Enviar" />
+    <a class="btn btn-info" asp-controller="Moeda" asp-action="InserirMoeda">Adicionar Moeda</a>
+    <br />
+    <hr />
+</form>
+

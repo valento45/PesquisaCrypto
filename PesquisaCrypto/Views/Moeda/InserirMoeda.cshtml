@@ -1,0 +1,16 @@
+﻿@model Moeda
+@{
+    ViewData["Title"] = "Nova Moeda";
+}
+
+<h2>Inserir nova moeda</h2>
+<form asp-controller="Moeda" asp-action="InserirMoeda" method="post">
+
+    <div class="form-group">
+        <label asp-for="Nome" class="col-form-label"></label>
+        <input asp-for="Nome" class="form-control" />
+    </div>
+
+    <input type="submit" asp-action="InserirMoeda" value="Salvar" class="btn btn-success" />
+    <input type="submit" asp-action="Index" value="Voltar" class="btn" />
+</form>
